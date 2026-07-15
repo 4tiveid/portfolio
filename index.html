@@ -2,19 +2,17 @@
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Erlangga Bima Sakti | Creative Portfolio</title>
     
-    <!-- Framework & Fonts -->
+    <!-- Framework, Fonts & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght=0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Animation Library (AOS) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Pinterest SDK -->
-    <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
 
     <script>
         tailwind.config = {
@@ -23,6 +21,11 @@
                     fontFamily: {
                         sans: ['Plus Jakarta Sans', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        dark: '#0D0D0D',
+                        cardDark: '#161616',
+                        light: '#F8F9FA'
                     }
                 }
             }
@@ -30,209 +33,521 @@
     </script>
 
     <style>
-        /* Preloader Styles */
+        /* Mengunci total pergeseran layar pada mobile */
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        /* Preloader Styles - Terkunci Sempurna di Tengah */
         #loader {
             position: fixed;
-            inset: 0;
-            background: #000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0D0D0D;
             z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: transform 1s cubic-bezier(0.85, 0, 0.15, 1);
+            overflow: hidden;
         }
         
-        .loader-text {
-            color: white;
+        #loader-text {
             font-family: 'Playfair Display', serif;
-            overflow: hidden;
-            border-right: .15em solid white;
-            white-space: nowrap;
-            margin: 0 auto;
-            letter-spacing: .15em;
-            animation: typing 1.5s steps(20, end), blink-caret .75s step-end infinite;
+            transition: opacity 0.25s ease-in-out;
+            text-align: center;
+            width: 100%;
         }
 
-        @keyframes typing { from { width: 0 } to { width: 100% } }
-        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: white; } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0D0D0D; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #444; }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Scroll Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(to right, #737373, #FFFFFF);
+            z-index: 100;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
 
-        /* Smooth Image Zoom */
-        .img-zoom:hover img {
-            transform: scale(1.05);
+        /* Floating Nav Background on Scroll */
+        .nav-active {
+            background-color: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
         }
     </style>
 </head>
-<body class="bg-[#FAFAFA] text-[#1A1A1A] selection:bg-black selection:text-white antialiased no-scrollbar overflow-x-hidden">
+<body class="bg-light text-dark selection:bg-black selection:text-white antialiased">
+
+    <!-- Scroll Progress Indicator -->
+    <div id="scroll-progress"></div>
 
     <!-- Preloader Section -->
     <div id="loader">
-        <div class="loader-text uppercase tracking-[0.5em] text-xs md:text-xl font-light">Halo</div>
+        <div id="loader-text" class="text-white text-3xl sm:text-5xl md:text-6xl font-light tracking-wide opacity-0 px-4">
+            Halo
+        </div>
     </div>
 
     <!-- Navigasi -->
-    <nav class="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-50 mix-blend-difference text-white">
-        <span class="font-bold tracking-tighter text-xl uppercase">Erlangga.</span>
-        <div class="flex space-x-6 md:space-x-10 text-[10px] uppercase tracking-[0.3em] font-medium">
-            <a href="#experience" class="hover:opacity-50 transition">About</a>
-            <a href="#work" class="hover:opacity-50 transition">Work</a>
-            <a href="https://wa.me/6285691232081" target="_blank" class="hover:opacity-50 transition">Contact</a>
+    <nav id="navbar" class="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-50 transition-all duration-500 text-white mix-blend-difference">
+        <span class="font-bold tracking-tighter text-lg md:text-2xl uppercase">Erlangga.</span>
+        
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex space-x-10 text-xs uppercase tracking-[0.3em] font-semibold">
+            <a href="#about" class="hover:opacity-50 transition-opacity">About</a>
+            <a href="#services" class="hover:opacity-50 transition-opacity">Services</a>
+            <a href="#work" class="hover:opacity-50 transition-opacity">Work</a>
+            <a href="#contact" class="hover:opacity-50 transition-opacity">Contact</a>
         </div>
+
+        <!-- Sleek Hamburger Button for Mobile -->
+        <button id="menu-btn" class="md:hidden flex flex-col justify-between w-6 h-3.5 z-50 relative focus:outline-none">
+            <span id="menu-line-1" class="w-full h-0.5 bg-white transition-all duration-300 transform origin-center"></span>
+            <span id="menu-line-2" class="w-4/5 h-0.5 bg-white transition-all duration-300 self-end transform origin-center"></span>
+        </button>
     </nav>
 
+    <!-- Mobile Navigation Fullscreen Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-dark z-40 translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-center items-center text-white">
+        <div class="flex flex-col space-y-8 text-center">
+            <a href="#about" class="mobile-link text-2xl font-serif italic text-neutral-400 hover:text-white transition-colors">About</a>
+            <a href="#services" class="mobile-link text-2xl font-serif italic text-neutral-400 hover:text-white transition-colors">Services</a>
+            <a href="#work" class="mobile-link text-2xl font-serif italic text-neutral-400 hover:text-white transition-colors">Work</a>
+            <a href="#contact" class="mobile-link text-2xl font-serif italic text-neutral-400 hover:text-white transition-colors">Contact</a>
+        </div>
+    </div>
+
     <!-- Hero Section -->
-    <section class="min-h-screen flex flex-col justify-center px-6 md:px-20 relative bg-white">
-        <div class="max-w-7xl mx-auto w-full text-center md:text-left">
-            <h1 class="text-[14vw] md:text-[10vw] font-serif leading-[0.8] tracking-tighter" data-aos="fade-up" data-aos-duration="1500">
+    <section class="min-h-screen flex flex-col justify-center px-6 sm:px-12 md:px-20 relative bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto w-full text-left pt-20 relative z-10">
+            <span class="text-[10px] md:text-xs uppercase tracking-[0.6em] text-gray-400 font-bold block mb-4 animate-pulse">Creative Visual Designer</span>
+            <h1 class="text-[12vw] sm:text-[10vw] md:text-[9vw] font-serif leading-[0.85] tracking-tighter text-dark" data-aos="fade-up" data-aos-duration="1500">
                 Erlangga <br> <span class="italic text-gray-300">Bima Sakti</span>
             </h1>
-            <div class="mt-12 flex flex-col md:flex-row md:items-center justify-between gap-8" data-aos="fade-up" data-aos-delay="400">
-                <p class="text-xs md:text-sm max-w-lg leading-relaxed text-gray-500 uppercase tracking-widest border-l border-black pl-4 text-left">
-                    Desainer Grafis dalam pembuatan aset visual strategis, mulai dari desain media sosial dan katalog produk hingga Motion Graphics.
+            <div class="mt-16 flex flex-col md:flex-row md:items-end justify-between gap-8" data-aos="fade-up" data-aos-delay="400">
+                <p class="text-xs md:text-sm max-w-lg leading-relaxed text-gray-500 uppercase tracking-widest border-l-2 border-dark pl-4 text-left">
+                    Menghubungkan estetika visual dan struktur digital. Berpengalaman merancang aset promosi strategis, identitas visual, hingga pengembangan web modern.
                 </p>
-                <div class="text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold">
+                <div class="text-[10px] md:text-xs uppercase tracking-[0.4em] text-gray-400 font-bold self-start md:self-auto text-left md:text-right">
                     Jonggol, Cileungsi &bull; Indonesia
                 </div>
             </div>
         </div>
+        
+        <!-- Decorative Ambient Graphic -->
+        <div class="absolute -bottom-20 -right-20 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-neutral-100 rounded-full blur-3xl -z-10 opacity-70"></div>
+        
+        <!-- Animated Scroll Down Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 text-gray-300 hover:text-dark transition-colors duration-300">
+            <span class="text-[9px] uppercase tracking-[0.4em] font-semibold">Scroll Down</span>
+            <div class="w-[20px] h-[35px] border-2 border-gray-300 rounded-full flex justify-center p-[4px]">
+                <div class="w-[4px] h-[8px] bg-gray-400 rounded-full animate-bounce"></div>
+            </div>
+        </div>
     </section>
 
-    <!-- Experience & CV Section -->
-    <section id="experience" class="py-32 bg-[#1A1A1A] text-white px-6 md:px-20">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-16">
-            
-            <!-- Profil & Tombol CV -->
-            <div class="md:col-span-5" data-aos="fade-right">
-                <h2 class="font-serif text-5xl md:text-7xl italic text-gray-700 mb-10">Profile.</h2>
-                <div class="aspect-[4/5] bg-gray-900 grayscale hover:grayscale-0 transition duration-1000 rounded-sm overflow-hidden shadow-2xl group relative">
-                    <img src="me.jpg" alt="Erlangga Bima Sakti" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-700">
+    <!-- Profile, Bio & Skills Section -->
+    <section id="about" class="py-24 sm:py-32 md:py-44 bg-dark text-white px-6 sm:px-12 md:px-20 relative z-10 overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+                
+                <!-- Profil & Tombol CV -->
+                <div class="lg:col-span-5 flex flex-col justify-between" data-aos="fade-right">
+                    <div>
+                        <h2 class="font-serif text-5xl md:text-7xl italic text-neutral-800 mb-8 lg:mb-12">Profile.</h2>
+                        <div class="aspect-[4/5] w-full bg-neutral-900 grayscale hover:grayscale-0 transition duration-1000 rounded-sm overflow-hidden shadow-2xl group relative mb-8">
+                            <img src="me.jpg" alt="Erlangga Bima Sakti" class="w-full h-full object-cover opacity-60 group-hover:opacity-90 transition duration-700 transform group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500 flex items-end p-6">
+                                <p class="text-xs uppercase tracking-widest text-neutral-300">Ready to build fresh visual campaigns.</p>
+                            </div>
+                        </div>
+                        
+                        <a href="CV_Erlangga_Bima_Sakti.pdf" download class="inline-block w-full text-center border border-white/10 py-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-white hover:text-black hover:border-white transition-all duration-500 rounded-sm mb-12">
+                            <i class="fa-solid fa-arrow-down-long mr-2 animate-bounce"></i> Download Curriculum Vitae
+                        </a>
+                    </div>
+
+                    <!-- Tech Stack & Skills Summary -->
+                    <div class="space-y-6 border-t border-neutral-900 pt-8">
+                        <div>
+                            <p class="text-[9px] uppercase tracking-[0.2em] text-neutral-500 mb-3 font-bold">Keahlian Utama</p>
+                            <div class="flex flex-wrap gap-1.5 text-[8px] uppercase tracking-wider font-semibold">
+                                <span class="px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-sm">Graphic Design</span>
+                                <span class="px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-sm">Visual Identity</span>
+                                <span class="px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-sm">Motion Graphics</span>
+                                <span class="px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-sm">Web Development</span>
+                                <span class="px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-sm">UI/UX Design</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase tracking-[0.2em] text-neutral-500 mb-3 font-bold">Tools Andalan</p>
+                            <div class="flex flex-wrap gap-2 text-xs text-neutral-400">
+                                <span title="Photoshop" class="hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-bezier-curve mr-1 text-sky-400"></i>Photoshop</span>
+                                <span title="After Effects" class="hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-wand-magic-sparkles mr-1 text-indigo-400"></i>After Effects</span>
+                                <span title="Figma" class="hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-figma mr-1 text-emerald-400"></i>Figma</span>
+                                <span title="VS Code" class="hover:text-white transition-colors cursor-pointer"><i class="fa-solid fa-code mr-1 text-blue-400"></i>VS Code</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="mt-8">
-                    <a href="CV_Erlangga_Bima_Sakti.pdf" download class="inline-block w-full text-center border border-white/20 py-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-white hover:text-black transition duration-500">
-                        Download Curriculum Vitae
-                    </a>
-                </div>
+                <!-- Daftar Pengalaman Kerja & Pendidikan Lengkap -->
+                <div class="lg:col-span-7 space-y-12 lg:mt-24" data-aos="fade-left">
+                    <h3 class="text-[10px] uppercase tracking-[0.4em] text-neutral-500 font-bold border-b border-neutral-900 pb-3">Journey & Experience</h3>
 
-                <div class="mt-10 space-y-6">
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Technical Skills</p>
-                        <div class="flex flex-wrap gap-2 text-[9px] uppercase tracking-widest font-bold">
-                            <span class="px-3 py-1 border border-gray-800">Web Development</span>
-                            <span class="px-3 py-1 border border-gray-800">Social Media Design</span>
-                            <span class="px-3 py-1 border border-gray-800">Motion Graphics</span>
-                            <span class="px-3 py-1 border border-gray-800">Multimedia Production</span>
+                    <!-- Pengalaman 1 -->
+                    <div class="relative pl-8 border-l border-neutral-800 group hover:border-neutral-500 transition-colors duration-500 pb-6">
+                        <div class="absolute -left-[4.5px] top-1.5 w-2 h-2 rounded-full bg-neutral-700 group-hover:bg-white transition-colors duration-500"></div>
+                        <span class="text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold"><i class="fa-regular fa-calendar-days mr-2"></i>Februari 2026 - April 2026</span>
+                        <h4 class="text-xl md:text-2xl font-light uppercase tracking-tight group-hover:text-white transition-colors">Staff Editor</h4>
+                        <p class="text-xs text-neutral-500 uppercase tracking-wider mb-3 font-medium">Studio Space by Aida</p>
+                        <p class="text-neutral-400 text-xs leading-relaxed">
+                            Memproduksi hingga 15 konten video kreatif (Reels/TikTok) serta aset grafis premium setiap bulannya. Berperan ganda sebagai asisten teknis fotografer komersial dan prewedding untuk memastikan keselarasan visual.
+                        </p>
+                    </div>
+
+                    <!-- Pengalaman 2 -->
+                    <div class="relative pl-8 border-l border-neutral-800 group hover:border-neutral-500 transition-colors duration-500 pb-6">
+                        <div class="absolute -left-[4.5px] top-1.5 w-2 h-2 rounded-full bg-neutral-700 group-hover:bg-white transition-colors duration-500"></div>
+                        <span class="text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold"><i class="fa-regular fa-calendar-days mr-2"></i>Mei 2025 - Januari 2026</span>
+                        <h4 class="text-xl md:text-2xl font-light uppercase tracking-tight group-hover:text-white transition-colors">Staff Editor</h4>
+                        <p class="text-xs text-neutral-500 uppercase tracking-wider mb-3 font-medium">CV. Permata Sahabat Maju</p>
+                        <p class="text-neutral-400 text-xs leading-relaxed">
+                            Memproduksi lebih dari 40 aset materi promosi bulanan (seperti banner, brosur, materi marketing) untuk akselerasi pemasaran. Bertanggung jawab menyusun visualisasi Unique Selling Proposition (USP) produk.
+                        </p>
+                    </div>
+
+                    <!-- Pengalaman 3 -->
+                    <div class="relative pl-8 border-l border-neutral-800 group hover:border-neutral-500 transition-colors duration-500 pb-6">
+                        <div class="absolute -left-[4.5px] top-1.5 w-2 h-2 rounded-full bg-neutral-700 group-hover:bg-white transition-colors duration-500"></div>
+                        <span class="text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold"><i class="fa-regular fa-calendar-days mr-2"></i>Maret 2025 - Mei 2025</span>
+                        <h4 class="text-xl md:text-2xl font-light uppercase tracking-tight group-hover:text-white transition-colors">Freelance Web Builder & Editor</h4>
+                        <p class="text-xs text-neutral-500 uppercase tracking-wider mb-3 font-medium">Independen / Self-Employed</p>
+                        <p class="text-neutral-400 text-xs leading-relaxed">
+                            Menangani manajemen ketat untuk 3-5 proyek klien per minggu. Berfokus pada desain landing page interaktif, visual branding, pengeditan video komersial, serta implementasi sistem sesuai brand guideline masing-masing klien.
+                        </p>
+                    </div>
+
+                    <!-- Pengalaman 4 -->
+                    <div class="relative pl-8 border-l border-neutral-800 group hover:border-neutral-500 transition-colors duration-500 pb-6">
+                        <div class="absolute -left-[4.5px] top-1.5 w-2 h-2 rounded-full bg-neutral-700 group-hover:bg-white transition-colors duration-500"></div>
+                        <span class="text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold"><i class="fa-regular fa-calendar-days mr-2"></i>November 2024 - Februari 2025</span>
+                        <h4 class="text-xl md:text-2xl font-light uppercase tracking-tight group-hover:text-white transition-colors">Web Developer Intern (PKL)</h4>
+                        <p class="text-xs text-neutral-500 uppercase tracking-wider mb-3 font-medium">Polsek Cariu</p>
+                        <p class="text-neutral-400 text-xs leading-relaxed">
+                            Merancang dan membangun 1 unit sistem input data digital berbasis web untuk memudahkan alur pengajuan dan penerbitan Surat Keterangan Catatan Kepolisian (SKCK), menggantikan total alur pencatatan manual.
+                        </p>
+                    </div>
+
+                    <!-- Pendidikan -->
+                    <div class="pt-6 border-t border-neutral-900">
+                        <h4 class="font-serif text-3xl italic text-neutral-600 mb-6">Education.</h4>
+                        <div class="relative pl-8 border-l border-neutral-800">
+                            <span class="text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold"><i class="fa-solid fa-graduation-cap mr-2"></i>2022 - 2025</span>
+                            <p class="text-lg font-light uppercase tracking-tight text-neutral-200">SMK Bina Mandiri Multimedia</p>
+                            <p class="text-neutral-500 text-xs tracking-widest uppercase mt-1">Jurusan Rekayasa Perangkat Lunak</p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Tools Mastery</p>
-                        <div class="flex flex-wrap gap-2 text-[9px] uppercase tracking-widest font-bold text-gray-400">
-                            <span>Photoshop</span> <span>&bull;</span> <span>After Effects</span> <span>&bull;</span> 
-                            <span>CapCut</span> <span>&bull;</span> <span>Alight Motion</span> <span>&bull;</span> <span>Canva</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Daftar Pengalaman -->
-            <div class="md:col-span-7 space-y-16" data-aos="fade-left">
-                <div class="group border-b border-gray-800 pb-12 transition-colors hover:border-gray-500">
-                    <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-4">Februari 2026 - Sekarang</span>
-                    <h3 class="text-2xl font-light uppercase tracking-tighter">Staff Editor - Studio Space by Aida</h3>
-                    <ul class="mt-4 text-gray-400 text-sm space-y-2 leading-relaxed">
-                        <li>• Memproduksi konten video kreatif (Reels/TikTok) dan desain grafis.</li>
-                        <li>• Bertanggung jawab sebagai asisten teknis fotografer prewedding.</li>
-                    </ul>
-                </div>
 
-                <div class="group border-b border-gray-800 pb-12 transition-colors hover:border-gray-500">
-                    <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-4">Mei 2025 - Januari 2026</span>
-                    <h3 class="text-2xl font-light uppercase tracking-tighter">Staff Editor - CV. Permata Sahabat Maju</h3>
-                    <ul class="mt-4 text-gray-400 text-sm space-y-2 leading-relaxed">
-                        <li>• Memproduksi aset banner, brosur, dan konten feed Instagram.</li>
-                        <li>• Menyusun desain USP produk untuk meningkatkan engagement.</li>
-                    </ul>
-                </div>
-
-                <div class="group border-b border-gray-800 pb-12 transition-colors hover:border-gray-500">
-                    <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-4">2022 - 2025</span>
-                    <h4 class="font-serif text-3xl italic text-gray-600 mb-2">Education.</h4>
-                    <p class="text-lg font-light uppercase tracking-tight">SMK Bina Mandiri Multimedia</p>
-                    <p class="text-gray-500 text-xs tracking-widest">Rekayasa Perangkat Lunak</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Work Section -->
-    <section id="work" class="py-32 px-6 md:px-10 bg-white">
-        <div class="max-w-[1440px] mx-auto">
-            <div class="text-center mb-16" data-aos="fade-down">
-                <h2 class="font-serif text-5xl md:text-7xl italic mb-2 tracking-tighter text-gray-200">Selected Work.</h2>
-                <p class="text-[9px] uppercase tracking-[0.5em] text-gray-400 italic">Visual Studio @4tiveid</p>
+    <!-- NEW SECTION: Milestone & Statistics (Impact)
+    <section class="py-20 bg-white text-dark border-b border-gray-100 px-6 sm:px-12 md:px-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="font-serif text-5xl md:text-6xl font-light tracking-tight">50+</h4>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Proyek Selesai</p>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="font-serif text-5xl md:text-6xl font-light tracking-tight">99%</h4>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Kepuasan Klien</p>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="font-serif text-5xl md:text-6xl font-light tracking-tight">300+</h4>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Aset Konten Dirilis</p>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="400">
+                    <h4 class="font-serif text-5xl md:text-6xl font-light tracking-tight">3+</h4>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Tahun Pengalaman Aktif</p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Services Section -->
+    <section id="services" class="py-24 sm:py-32 md:py-44 bg-white text-dark px-6 sm:px-12 md:px-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-left mb-20" data-aos="fade-up">
+                <span class="text-[10px] md:text-xs uppercase tracking-[0.5em] text-gray-400 font-bold block mb-3">Keahlian Profesional</span>
+                <h2 class="font-serif text-5xl md:text-7xl italic tracking-tighter">My Services.</h2>
             </div>
 
-            <!-- Grid Responsif -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-20">
-                <!-- Project 1 -->
-                <a href="https://pin.it/4gpqmJBX8" target="_blank" class="group block img-zoom" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="aspect-[1080/1350] overflow-hidden bg-gray-100">
-                        <img src="p1.jpg" class="w-full h-full object-cover transition-transform duration-1000" alt="Project 1">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="p-8 md:p-12 border border-gray-100 hover:border-black/10 hover:shadow-xl transition-all duration-500 group rounded-sm flex flex-col justify-between" data-aos="fade-up" data-aos-delay="100">
+                    <div>
+                        <div class="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-dark mb-8 group-hover:bg-black group-hover:text-white transition-all duration-500">
+                            <i class="fa-solid fa-palette text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl font-light uppercase tracking-tight mb-4">Graphic Design & Brand Identity</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">
+                            Pembuatan aset visual promosi strategis seperti poster komersial, banner, brosur, media kit, hingga feed Instagram estetik yang sejalan dengan identitas brand Anda.
+                        </p>
                     </div>
-                    <div class="mt-3 text-[9px] uppercase tracking-widest text-gray-400">01</div>
+                    <ul class="mt-8 pt-6 border-t border-gray-50 text-[11px] uppercase tracking-wider text-gray-400 space-y-2">
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Social Media Content</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Product Catalogs</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Branding Guide</li>
+                    </ul>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="p-8 md:p-12 border border-gray-100 hover:border-black/10 hover:shadow-xl transition-all duration-500 group rounded-sm flex flex-col justify-between" data-aos="fade-up" data-aos-delay="200">
+                    <div>
+                        <div class="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-dark mb-8 group-hover:bg-black group-hover:text-white transition-all duration-500">
+                            <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl font-light uppercase tracking-tight mb-4">Video Editing & Motion Graphics</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">
+                            Menciptakan video pendek kreatif berperforma tinggi (Reels/TikTok) dengan sentuhan transisi dinamis, *color grading* sinematik, serta animasi motion graphic yang menarik atensi audiens.
+                        </p>
+                    </div>
+                    <ul class="mt-8 pt-6 border-t border-gray-50 text-[11px] uppercase tracking-wider text-gray-400 space-y-2">
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Reels & TikTok Editing</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Motion Intro/Outro</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Commercial Video ads</li>
+                    </ul>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="p-8 md:p-12 border border-gray-100 hover:border-black/10 hover:shadow-xl transition-all duration-500 group rounded-sm flex flex-col justify-between" data-aos="fade-up" data-aos-delay="300">
+                    <div>
+                        <div class="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-dark mb-8 group-hover:bg-black group-hover:text-white transition-all duration-500">
+                            <i class="fa-solid fa-code text-lg"></i>
+                        </div>
+                        <h3 class="text-2xl font-light uppercase tracking-tight mb-4">Web Development & UI/UX</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">
+                            Membangun website portofolio interaktif, landing page, hingga sistem web custom fungsional dengan rancangan UI/UX yang bersih, minimalis, dan responsif di segala perangkat.
+                        </p>
+                    </div>
+                    <ul class="mt-8 pt-6 border-t border-gray-50 text-[11px] uppercase tracking-wider text-gray-400 space-y-2">
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Portfolio Websites</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Custom Admin Panels</li>
+                        <li><i class="fa-solid fa-check mr-2 text-dark"></i> Interactive Landing Pages</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Typographic Philosophy / Quote -->
+    <section class="py-24 sm:py-36 bg-dark text-white px-6 sm:px-12 md:px-20 text-center relative overflow-hidden">
+        <div class="max-w-5xl mx-auto" data-aos="fade-up">
+            <span class="text-[9px] uppercase tracking-[0.6em] text-neutral-500 font-bold block mb-8">Filosofi Kerja</span>
+            <blockquote class="font-serif text-3xl sm:text-5xl md:text-6xl leading-[1.25] text-neutral-100 italic tracking-tight">
+                "Desain yang hebat bukan sekadar tentang estetika visual yang menakjubkan, melainkan bagaimana visual tersebut mampu menceritakan sebuah pesan, menyelesaikan masalah, dan mendorong audiens untuk bertindak."
+            </blockquote>
+            <div class="w-12 h-[1px] bg-neutral-700 mx-auto mt-10"></div>
+            <cite class="text-[10px] uppercase tracking-[0.4em] text-neutral-400 block mt-6 font-bold">Erlangga Bima Sakti</cite>
+        </div>
+    </section>
+
+    <!-- Work Process Section -->
+    <section id="process" class="py-24 sm:py-32 md:py-44 bg-dark text-white px-6 sm:px-12 md:px-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-24" data-aos="fade-up">
+                <span class="text-[10px] uppercase tracking-[0.5em] text-neutral-500 font-bold block mb-3">How I Work</span>
+                <h2 class="font-serif text-5xl md:text-7xl italic tracking-tighter">My Creative Process.</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+                <!-- Step 1 -->
+                <div class="relative group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-6xl font-serif italic text-neutral-800 group-hover:text-neutral-500 transition-colors duration-500 mb-6">01</div>
+                    <h3 class="text-lg font-semibold uppercase tracking-wider mb-3">Brief & Research</h3>
+                    <p class="text-xs text-neutral-500 leading-relaxed">
+                        Mempelajari profil produk klien, menganalisis target audiens, merancang USP visual unik, dan menyelaraskan tujuan promosi.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-6xl font-serif italic text-neutral-800 group-hover:text-neutral-500 transition-colors duration-500 mb-6">02</div>
+                    <h3 class="text-lg font-semibold uppercase tracking-wider mb-3">Visual Concept</h3>
+                    <p class="text-xs text-neutral-500 leading-relaxed">
+                        Membuat moodboard desain, menyusun draf layout awal di Figma, atau mendesain storyboard video pendek agar konsep terarah.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-6xl font-serif italic text-neutral-800 group-hover:text-neutral-500 transition-colors duration-500 mb-6">03</div>
+                    <h3 class="text-lg font-semibold uppercase tracking-wider mb-3">Execution</h3>
+                    <p class="text-xs text-neutral-500 leading-relaxed">
+                        Tahap produksi utama: mengolah grafis di Photoshop, menganimasikan motion graphics di After Effects, atau menulis kode web yang bersih.
+                    </p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative group" data-aos="fade-up" data-aos-delay="400">
+                    <div class="text-6xl font-serif italic text-neutral-800 group-hover:text-neutral-500 transition-colors duration-500 mb-6">04</div>
+                    <h3 class="text-lg font-semibold uppercase tracking-wider mb-3">Final Delivery</h3>
+                    <p class="text-xs text-neutral-500 leading-relaxed">
+                        Melakukan proses pengujian teknis detail, revisi akurat sesuai masukan klien, serta pengiriman hasil akhir tepat sebelum tenggat waktu.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Selected Work Section (Cleaned Up & No Filters & No Text Labels) -->
+    <section id="work" class="py-24 sm:py-32 md:py-44 px-4 sm:px-8 md:px-16 bg-white overflow-hidden">
+        <div class="max-w-[1440px] mx-auto">
+            <div class="text-center mb-20" data-aos="fade-down">
+                <span class="text-[10px] uppercase tracking-[0.5em] text-gray-400 font-bold block mb-3">Visual Studio</span>
+                <h2 class="font-serif text-5xl sm:text-6xl md:text-8xl italic mb-3 tracking-tighter text-neutral-200">Selected Work.</h2>
+                <p class="text-[9px] md:text-xs uppercase tracking-[0.5em] text-gray-400 italic font-bold">Pinterest Archive &bull; @4tiveid</p>
+            </div>
+
+            <!-- Grid Responsif Sempurna -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 mb-20">
+                <!-- Project 1 -->
+                <a href="https://pin.it/4gpqmJBX8" target="_blank" class="group block overflow-hidden rounded-sm bg-neutral-50 shadow-sm hover:shadow-xl transition-all duration-500" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="aspect-[1080/1350] overflow-hidden">
+                        <img src="p1.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Project 1 Layout Berkah">
+                    </div>
+                    <div class="p-4 flex justify-between items-center border-t border-gray-50 bg-white">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">View on Pinterest</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-300 group-hover:text-dark transition-colors"></i>
+                    </div>
                 </a>
 
                 <!-- Project 2 -->
-                <a href="https://pin.it/4bGRYXBPY" target="_blank" class="group block img-zoom" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="aspect-[1080/1350] overflow-hidden bg-gray-100">
-                        <img src="p2.jpg" class="w-full h-full object-cover transition-transform duration-1000" alt="Project 2">
+                <a href="https://pin.it/4bGRYXBPY" target="_blank" class="group block overflow-hidden rounded-sm bg-neutral-50 shadow-sm hover:shadow-xl transition-all duration-500" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="aspect-[1080/1350] overflow-hidden">
+                        <img src="p2.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Project 2 Edukasi Anabul">
                     </div>
-                    <div class="mt-3 text-[9px] uppercase tracking-widest text-gray-400">02</div>
+                    <div class="p-4 flex justify-between items-center border-t border-gray-50 bg-white">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">View on Pinterest</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-300 group-hover:text-dark transition-colors"></i>
+                    </div>
                 </a>
 
                 <!-- Project 3 -->
-                <a href="https://pin.it/7r3Rcq6hy" target="_blank" class="group block img-zoom" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="aspect-[1080/1350] overflow-hidden bg-gray-100">
-                        <img src="p3.jpg" class="w-full h-full object-cover transition-transform duration-1000" alt="Project 3">
+                <a href="https://pin.it/7r3Rcq6hy" target="_blank" class="group block overflow-hidden rounded-sm bg-neutral-50 shadow-sm hover:shadow-xl transition-all duration-500" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="aspect-[1080/1350] overflow-hidden">
+                        <img src="p3.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Project 3 Content Creative">
                     </div>
-                    <div class="mt-3 text-[9px] uppercase tracking-widest text-gray-400">03</div>
+                    <div class="p-4 flex justify-between items-center border-t border-gray-50 bg-white">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">View on Pinterest</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-300 group-hover:text-dark transition-colors"></i>
+                    </div>
                 </a>
 
                 <!-- Project 4 -->
-                <a href="https://pin.it/2owfGP1vp" target="_blank" class="group block img-zoom" data-aos="zoom-in" data-aos-delay="400">
-                    <div class="aspect-[1080/1350] overflow-hidden bg-gray-100">
-                        <img src="p4.jpg" class="w-full h-full object-cover transition-transform duration-1000" alt="Project 4">
+                <a href="https://pin.it/2owfGP1vp" target="_blank" class="group block overflow-hidden rounded-sm bg-neutral-50 shadow-sm hover:shadow-xl transition-all duration-500" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="aspect-[1080/1350] overflow-hidden">
+                        <img src="p4.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Project 4 Edukatips Content">
                     </div>
-                    <div class="mt-3 text-[9px] uppercase tracking-widest text-gray-400">04</div>
+                    <div class="p-4 flex justify-between items-center border-t border-gray-50 bg-white">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">View on Pinterest</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-300 group-hover:text-dark transition-colors"></i>
+                    </div>
                 </a>
             </div>
 
-            <div class="flex justify-center mt-24" data-aos="fade-up">
+            <div class="flex justify-center mt-20" data-aos="fade-up">
                 <a href="https://id.pinterest.com/4tiveid/" target="_blank" 
-                   class="px-12 py-5 border border-gray-200 text-[11px] uppercase tracking-[0.6em] font-bold text-gray-500 hover:bg-black hover:text-white hover:border-black transition-all duration-500">
-                    View Full Gallery
+                   class="px-10 py-4 border border-gray-200 text-[10px] md:text-xs uppercase tracking-[0.5em] font-bold text-gray-500 hover:bg-black hover:text-white hover:border-black transition-all duration-500 rounded-sm shadow-sm flex items-center gap-3">
+                    <i class="fa-brands fa-pinterest"></i> View Full Gallery
                 </a>
             </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Contact Form & CTA Section -->
+    <section id="contact" class="py-24 sm:py-32 bg-neutral-50 px-6 sm:px-12 md:px-20 border-t border-gray-100 overflow-hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <span class="text-[10px] uppercase tracking-[0.5em] text-gray-400 font-bold block mb-3">Let's Connect</span>
+                <h2 class="font-serif text-4xl md:text-6xl italic tracking-tighter">Start a Project together.</h2>
+            </div>
+
+            <form action="mailto:erlanggabimasaktii@gmail.com" method="post" enctype="text/plain" class="space-y-8 bg-white p-8 md:p-12 rounded-sm border border-gray-100 shadow-sm" data-aos="fade-up">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Your Name</label>
+                        <input type="text" name="name" required placeholder="Nama Lengkap Anda" class="border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors bg-transparent">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Email Address</label>
+                        <input type="email" name="email" required placeholder="nama@perusahaan.com" class="border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors bg-transparent">
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Project Type</label>
+                    <select name="project_type" class="border-b border-gray-200 py-3 text-xs text-gray-500 focus:border-black outline-none transition-colors bg-white">
+                        <option>Graphic Design & Social Media Feed</option>
+                        <option>Video Editing & Motion Graphics</option>
+                        <option>Web Development & Landing Page</option>
+                        <option>Other Collaboration</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Message</label>
+                    <textarea name="message" rows="4" required placeholder="Ceritakan kebutuhan proyek Anda di sini..." class="border-b border-gray-200 py-3 text-sm focus:border-black outline-none transition-colors resize-none bg-transparent"></textarea>
+                </div>
+                
+                <button type="submit" class="w-full text-center bg-black text-white py-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-neutral-800 transition-colors duration-500 rounded-sm shadow-md">
+                    Send Message via Email
+                </button>
+            </form>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-24 bg-white px-6 md:px-20 border-t border-gray-100">
+    <footer class="py-20 bg-white px-6 sm:px-12 md:px-20 border-t border-gray-100 overflow-hidden">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
             <div data-aos="fade-up">
-                <h2 class="font-serif text-4xl italic mb-4 text-gray-300">Ready to start?</h2>
-                <a href="mailto:erlanggabimasaktii@gmail.com" class="text-2xl md:text-4xl font-light hover:line-through transition duration-500 decoration-1">erlanggabimasaktii@gmail.com</a>
+                <h2 class="font-serif text-3xl md:text-4xl italic mb-3 text-gray-300">Ready to start?</h2>
+                <a href="mailto:erlanggabimasaktii@gmail.com" class="text-xl md:text-3xl font-light hover:text-neutral-500 transition duration-500 tracking-tight flex items-center justify-center md:justify-start gap-3">
+                    <i class="fa-regular fa-envelope text-base text-gray-400"></i> erlanggabimasaktii@gmail.com
+                </a>
             </div>
             
             <div class="flex flex-col items-center md:items-end space-y-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="flex space-x-8 text-[10px] uppercase tracking-widest font-bold">
-                    <a href="https://wa.me/6285691232081" target="_blank" class="hover:text-gray-400 transition">WhatsApp</a>
-                    <a href="https://www.linkedin.com/in/erlangga-bima-sakti-053365407/" target="_blank" class="hover:text-gray-400 transition">Linkedin</a>
-                    <a href="https://www.instagram.com/4tive.id?igsh=MXYwMGJzcnhqdnJhaA==" target="_blank" class="hover:text-gray-400 transition">Instagram</a>
+                <div class="flex space-x-6 sm:space-x-8 text-[10px] md:text-xs uppercase tracking-widest font-bold text-dark">
+                    <a href="https://wa.me/6285691232081" target="_blank" class="hover:opacity-40 transition-opacity"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</a>
+                    <a href="https://www.linkedin.com/in/erlangga-bima-sakti-053365407/" target="_blank" class="hover:opacity-40 transition-opacity"><i class="fa-brands fa-linkedin-in mr-1"></i> Linkedin</a>
+                    <a href="https://www.instagram.com/4tive.id?igsh=MXYwMGJzcnhqdnJhaA==" target="_blank" class="hover:opacity-40 transition-opacity"><i class="fa-brands fa-instagram mr-1"></i> Instagram</a>
                 </div>
-                <p class="text-[9px] text-gray-300 tracking-[0.4em] uppercase font-medium">&copy; 2026 ERLANGGA BIMA SAKTI</p>
+                <p class="text-[9px] text-gray-300 tracking-[0.4em] uppercase font-semibold">&copy; 2026 ERLANGGA BIMA SAKTI</p>
             </div>
         </div>
     </footer>
@@ -241,15 +556,132 @@
         // Initialize AOS
         AOS.init({
             once: true,
-            offset: 50
+            offset: 80,
+            duration: 1000
         });
 
-        // Preloader Logic
+        // Multilingual Preloader Script
+        const words = ["Halo", "Hello", "Welcome", "Bonjour", "Konnichiwa", "Erlangga."];
+        let wordIndex = 0;
+        const loaderText = document.getElementById('loader-text');
+        
+        function cycleWords() {
+            if (wordIndex < words.length) {
+                // Fade out current word
+                loaderText.style.opacity = '0';
+                
+                setTimeout(() => {
+                    // Update content
+                    loaderText.textContent = words[wordIndex];
+                    // Fade in new word
+                    loaderText.style.opacity = '1';
+                    wordIndex++;
+                    
+                    // Call function again
+                    setTimeout(cycleWords, 220); // Kecepatan pergantian kata
+                }, 200);
+            } else {
+                // Slide up the preloader and activate content
+                setTimeout(() => {
+                    document.getElementById('loader').style.transform = 'translateY(-100%)';
+                }, 400);
+            }
+        }
+
         window.addEventListener('load', () => {
-            const loader = document.getElementById('loader');
-            setTimeout(() => {
-                loader.style.transform = 'translateY(-100%)';
-            }, 2000); 
+            // Jalankan animasi pergantian kata saat web selesai dimuat
+            setTimeout(cycleWords, 100);
+        });
+
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuLine1 = document.getElementById('menu-line-1');
+        const menuLine2 = document.getElementById('menu-line-2');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        const navbar = document.getElementById('navbar');
+
+        function toggleMenu() {
+            const isOpen = mobileMenu.classList.contains('translate-x-0');
+            if (isOpen) {
+                // Close
+                mobileMenu.classList.remove('translate-x-0');
+                mobileMenu.classList.add('translate-x-full');
+                // Hamburger icon normal
+                menuLine1.classList.remove('rotate-45', 'translate-y-[6px]');
+                menuLine2.classList.remove('-rotate-45', '-translate-y-[6px]', 'w-full');
+                menuLine2.classList.add('w-4/5');
+                // Restore mix-blend-difference if needed
+                if (window.scrollY <= 50) {
+                    navbar.classList.add('mix-blend-difference');
+                }
+            } else {
+                // Open
+                mobileMenu.classList.remove('translate-x-full');
+                mobileMenu.classList.add('translate-x-0');
+                // Hamburger icon transforms to 'X'
+                menuLine1.classList.add('rotate-45', 'translate-y-[6px]');
+                menuLine2.classList.add('-rotate-45', '-translate-y-[6px]', 'w-full');
+                menuLine2.classList.remove('w-4/5');
+                // Remove blend mode when menu is open so it contrasts nicely
+                navbar.classList.remove('mix-blend-difference');
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (mobileMenu.classList.contains('translate-x-0')) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Scroll Progress Bar & Navbar Interaction
+        window.addEventListener('scroll', () => {
+            const scrollProgress = document.getElementById('scroll-progress');
+            
+            // Progress bar
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            if (scrollProgress) {
+                scrollProgress.style.width = scrolled + "%";
+            }
+
+            // Floating navbar styling
+            if (window.scrollY > 50) {
+                navbar.classList.add('nav-active');
+                navbar.classList.remove('mix-blend-difference');
+            } else {
+                if (!mobileMenu.classList.contains('translate-x-0')) {
+                    navbar.classList.remove('nav-active');
+                    navbar.classList.add('mix-blend-difference');
+                }
+            }
+        });
+
+        // FAQ Accordion Interaction Logic
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const btn = item.querySelector('.faq-btn');
+            const content = item.querySelector('.faq-content');
+            const icon = item.querySelector('.faq-icon');
+            
+            btn.addEventListener('click', () => {
+                const isOpen = content.style.maxHeight;
+                
+                // Close all other FAQ items first
+                document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = null);
+                document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('rotate-180'));
+                
+                // Toggle current item
+                if (!isOpen) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.classList.add('rotate-180');
+                }
+            });
         });
     </script>
 </body>
